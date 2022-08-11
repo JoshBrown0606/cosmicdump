@@ -1,5 +1,6 @@
 use std::io::{self};
 
+#[derive(Clone, Copy, PartialEq)]
 enum Commands {
     Add,
     Subtract,
@@ -28,7 +29,7 @@ fn main() {
     let mut dp: usize = 0;
     unsafe {
         TAPE = vec![0; 3000];
-        for i in 0..5 {
+        for i in 0..4 {
             TAPE[i] = 1;
         }
     }
@@ -49,11 +50,7 @@ fn main() {
         });
     }
 
-    for cmd in 0..cmds.len() {
-        if let Commands::Pass = cmds.get(cmd).unwrap() {
-            cmds.remove(cmd);
-        }
-    }
+    cmds.retain(|&cmd| cmd != Commands::Pass);
 
     while dp < cmds.len() {
         unsafe {
@@ -66,20 +63,20 @@ fn main() {
                 },
                 Commands::Subtract => {
                     if conditional_check() {
-                        TAPE[TAPE_PTR] = back(TAPE[TAPE_PTR], 1);
+                        TAPE[TAPE_PTR] = back(TAPE[TAPE_PTR], 0);
                     }
                     dp += 1;
                 },
                 Commands::MoveL => {
                     if conditional_check() {
-                        TAPE_PTR = back(TAPE_PTR, 2);
+                        TAPE_PTR = back(TAPE_PTR, 1);
                     }
                     dp += 1;
                 },
                 Commands::MoveR => {
                     if conditional_check() {
-                        if TAPE_PTR + TAPE[2] >= TAPE.len() {
-                            for j in 0..(TAPE_PTR + TAPE[2] + 1 - TAPE.len()) {
+                        if TAPE_PTR + TAPE[1] >= TAPE.len() {
+                            for _j in 0..(TAPE_PTR + TAPE[2] + 1 - TAPE.len()) {
                                 TAPE.push(0);
                             }
                         }
@@ -89,13 +86,13 @@ fn main() {
                 },
                 Commands::JumpL => {
                     if conditional_check() {
-                        dp = back(dp, 3); 
+                        dp = back(dp, 2); 
                     }
                 },
                 Commands::JumpR => {
                     if conditional_check() {
-                        dp = if dp + TAPE[3] < cmds.len() {
-                            dp + TAPE[3]
+                        dp = if dp + TAPE[2] < cmds.len() {
+                            dp + TAPE[2]
                         } else {
                             dp
                         };
@@ -133,7 +130,7 @@ fn main() {
 }
 
 unsafe fn conditional_check() -> bool {
-    let cond: bool = !IS_CONDITIONAL || (IS_CONDITIONAL && TAPE[TAPE_PTR] == TAPE[4]);
+    let cond: bool = !IS_CONDITIONAL || (IS_CONDITIONAL && TAPE[TAPE_PTR] == TAPE[3]);
     IS_CONDITIONAL = false;
     return cond;
 }
