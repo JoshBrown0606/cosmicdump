@@ -13,4 +13,6 @@ The `}` operator jumps ahead a number of operators in your code equal to its res
 
 The final operator, `!`, makes it so that the next operator will only be executed if the current element of the tape is equal to the `!` operator's reserved value.
 
+Any characters that are not operators are considered comments.
+
 ###  *I have no example code for this language as I am too lazy to write it.*
