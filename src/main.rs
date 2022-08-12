@@ -15,7 +15,7 @@ enum Commands {
     Pass
 }
 
-static mut TAPE: Vec<usize> = Vec::new();
+static mut TAPE: Vec<u8> = Vec::new();
 static mut TAPE_PTR: usize = 0;
 static mut IS_CONDITIONAL: bool = false;
 fn main() {
@@ -63,7 +63,7 @@ fn main() {
                 },
                 Commands::Subtract => {
                     if conditional_check() {
-                        TAPE[TAPE_PTR] = back(TAPE[TAPE_PTR], 0);
+                        TAPE[TAPE_PTR] = backarr(TAPE[TAPE_PTR], 0);
                     }
                     dp += 1;
                 },
@@ -75,12 +75,12 @@ fn main() {
                 },
                 Commands::MoveR => {
                     if conditional_check() {
-                        if TAPE_PTR + TAPE[1] >= TAPE.len() {
-                            for _j in 0..(TAPE_PTR + TAPE[2] + 1 - TAPE.len()) {
+                        if TAPE_PTR + (TAPE[1] as usize) >= TAPE.len() {
+                            for _j in 0..(TAPE_PTR + (TAPE[2] as usize) + 1 - TAPE.len()) {
                                 TAPE.push(0);
                             }
                         }
-                        TAPE_PTR += TAPE[2];
+                        TAPE_PTR += TAPE[2] as usize;
                     }
                     dp += 1;
                 },
@@ -91,8 +91,8 @@ fn main() {
                 },
                 Commands::JumpR => {
                     if conditional_check() {
-                        dp = if dp + TAPE[2] < cmds.len() {
-                            dp + TAPE[2]
+                        dp = if dp + (TAPE[2] as usize) < cmds.len() {
+                            dp + (TAPE[2] as usize)
                         } else {
                             dp
                         };
@@ -102,7 +102,7 @@ fn main() {
                     if conditional_check(){
                         let mut inp: String = String::new();
                         io::stdin().read_line(&mut inp).ok().expect("Could not read input");
-                        TAPE[TAPE_PTR] = inp.trim().parse().expect("Only number inputs accepted.");
+                        TAPE[TAPE_PTR] = inp.chars().next().map(|char| char as u8).unwrap();
                     }
     
                     dp += 1;
@@ -115,7 +115,7 @@ fn main() {
                 },
                 Commands::Outputln => {
                     if conditional_check() {
-                        println!("{}", TAPE[TAPE_PTR])
+                        println!("{}", TAPE[TAPE_PTR] as char)
                     }
                     dp += 1;
                 },
@@ -135,9 +135,19 @@ unsafe fn conditional_check() -> bool {
     return cond;
 }
 
-unsafe fn back(mut v: usize, i: usize) -> usize {
+unsafe fn backarr(mut v: u8, i: usize) -> u8 {
     v = if v >= TAPE[i] {
         v - TAPE[i]
+    } else {
+        v
+    };
+
+    return v;
+}
+
+unsafe fn back(mut v: usize, i: usize) -> usize {
+    v = if v >= (TAPE[i] as usize) {
+        v - (TAPE[i] as usize)
     } else {
         v
     };
